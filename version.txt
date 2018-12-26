@@ -1,0 +1,13 @@
+Python = 3.7.0
+
+pip = 18.1
+
+Django = 2.1.4
+
+Django Rest Framework = 3.9.0
+
+pytz = 2018.7
+
+Virtualenv directory = zssn_venv
+
+Django-filter = 2.0.0
