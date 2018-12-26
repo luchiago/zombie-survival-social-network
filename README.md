@@ -15,7 +15,7 @@
 
   `python manage.py runserver` 
 	
-  `python manage.py runserver` (run the tests)
+  `python manage.py test` (run the tests)
 
   ### Linux
   `source zssn_venv/bin/activate` (for activate the virtualenv)
