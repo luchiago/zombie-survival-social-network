@@ -1,5 +1,5 @@
 from django.urls import path
-from snippets import views
+from survivor import views
 
 urlpatterns = [
     path('survivor/', views.survivor_list),
