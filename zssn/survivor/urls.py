@@ -6,5 +6,5 @@ urlpatterns = [
     path('survivor/<int:pk>/', views.survivor_detail),
     path('reports/', views.survivor_reports),
     path('updatelocation/<int:pk>/', views.survivor_update_location),
-    path('trade/', views.trade)
+    path('trade/', views.survivor_trade)
 ]

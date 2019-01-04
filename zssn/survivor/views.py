@@ -93,8 +93,38 @@ def survivor_update_location(request, pk):
         return HttpResponse(status=404)
 
 @csrf_exempt
-def trade(request):
+def survivor_trade(request):
     """
     The exchange of items between survivors happening in the following model:
-
+    {
+        "survirvor1_id" : id,
+        "items1_trade": {"type" : amount},
+        "survivor2_id": id,
+        "items2_trade": {"type" : amount},
+    }
+    where "x" is the amount of the item (e.g "water" : 5)
     """
+    def get_points(survivor_items):
+        points = 0
+        for item in survivor_items.keys():
+            if item.lower() == "water":
+                points = survivor_items[item] * 4
+            if item.lower() == "food":
+                points = survivor_items[item] * 3
+            if item.lower() == "medication":
+                points = survivor_items[item] * 2
+            if item.lower() == "ammunition":
+                points = survivor_items[item] * 1
+        return points
+
+    if request.method == 'PATCH':
+        data = JSONParser().parse(request)
+        try:
+            survivor = Survivor.objects.get(pk=data["survivor1_id"])
+            survivor = Survivor.objects.get(pk=data["survivor2_id"])
+        except Survivor.DoesNotExist:
+            return HttpResponse(status=404)
+        survivor1_items = data["items1_trade"]
+        survivor1_points = get_points(survivor1_items)
+        survivor2_items = data["items2_trade"]
+        survivor2_points = get_points(survivor2_items)
