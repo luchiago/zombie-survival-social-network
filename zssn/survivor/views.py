@@ -91,3 +91,10 @@ def survivor_update_location(request, pk):
             serializer.save()
             return JsonResponse(serializer.data, status=201)
         return HttpResponse(status=404)
+
+@csrf_exempt
+def trade(request):
+    """
+    The exchange of items between survivors happening in the following model:
+
+    """
