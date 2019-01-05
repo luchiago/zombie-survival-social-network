@@ -23,7 +23,7 @@ class SurvivorViewSet(ModelViewSet):
         Average amount of each kind of resource by survivor (e.g. 5 waters per survivor)
         Points lost because of infected survivor.
         '''
-        d = {}
+        data = {}
         total = infected = non_infected = water = food = medication = ammunition = pointslost = 0
         for i in model.Survivor.objects.all():
             total += 1
@@ -39,11 +39,11 @@ class SurvivorViewSet(ModelViewSet):
             food += i.food
             medication += i.medication
             ammunition += i.ammunition
-        d['Percentage of infected survivors'] = str((infected/total) * 100) + '%'
-        d['Percentage of non-infected survivors'] = str((non_infected/total) * 100) + '%'
-        d['Average amount of water by survivor'] = round(water/total,2)
-        d['Average amount of food by survivor'] = round(food/total,2)
-        d['Average amount of medication by survivor'] = round(medication/total,2)
-        d['Average amount of ammunition by survivor'] = round(ammunition/total,2)
-        d['Points lost because of infected survivor'] = pointslost
-        return Response(d)
+        data['Percentage of infected survivors'] = str((infected/total) * 100) + '%'
+        data['Percentage of non-infected survivors'] = str((non_infected/total) * 100) + '%'
+        data['Average amount of water by survivor'] = round(water/total,2)
+        data['Average amount of food by survivor'] = round(food/total,2)
+        data['Average amount of medication by survivor'] = round(medication/total,2)
+        data['Average amount of ammunition by survivor'] = round(ammunition/total,2)
+        data['Points lost because of infected survivor'] = pointslost
+        return Response(data)
