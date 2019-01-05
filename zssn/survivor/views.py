@@ -70,7 +70,7 @@ def survivor_reports(request):
         return Response(data, status=status.HTTP_200_OK)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'PUT'])
 def survivor_update_location(request, pk):
     """
     Update the location of survivor
@@ -80,7 +80,7 @@ def survivor_update_location(request, pk):
     except Survivor.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'PATCH':
+    if request.method == 'PATCH' or request.method == 'PUT':
         data = request.data
         for item in data.keys():
             if len(data) > 2:
@@ -93,7 +93,7 @@ def survivor_update_location(request, pk):
             return Response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'PUT'])
 def survivor_trade(request):
     """
     The exchange of items between survivors happening in the following model:
@@ -156,7 +156,7 @@ def survivor_trade(request):
                 survivor.ammunition += survivor_receive[item]
         return survivor
 
-    if request.method == 'PATCH':
+    if request.method == 'PATCH' or request.method == 'PUT':
 
         data = request.data
 
