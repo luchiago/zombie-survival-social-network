@@ -59,8 +59,8 @@ def survivor_reports(request):
         food += i.food
         medication += i.medication
         ammunition += i.ammunition
-    data['Percentage of infected survivors'] = str((infected/total) * 100) + '%'
-    data['Percentage of non-infected survivors'] = str((non_infected/total) * 100) + '%'
+    data['Percentage of infected survivors'] = str(round((infected/total), 2) * 100) + '%'
+    data['Percentage of non-infected survivors'] = str(round((non_infected/total), 2) * 100) + '%'
     data['Average amount of water by survivor'] = round(water/total,2)
     data['Average amount of food by survivor'] = round(food/total,2)
     data['Average amount of medication by survivor'] = round(medication/total,2)
