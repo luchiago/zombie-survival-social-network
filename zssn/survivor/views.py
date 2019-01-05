@@ -112,6 +112,7 @@ def survivor_flag_as_infected(request, pk):
     }
     where "x" is the number of report and <int:id> is the id of the other survivor
     """
+
     try:
         survivor = Survivor.objects.get(pk=pk)
     except Survivor.DoesNotExist:
@@ -120,27 +121,19 @@ def survivor_flag_as_infected(request, pk):
     if request.method == 'PATCH':
         if survivor.infected is True or survivor.reports >= 3:
             return HttpResponse(status=401)
-            #because he is alredy infected, doesn't make sense flag him again
         data = JSONParser().parse(request)
-        #Date is a dict that contains the id of the survivors reporting
         for item in data.keys():
-            #Verify if id's are valid
             try:
                 survivor_reporter = Survivor.objects.get(pk=data[item])
             except Survivor.DoesNotExist:
                 return HttpResponse(status=404)
             if survivor_reporter.infected is True:
-                #In case of infected survivor
                 return HttpResponse(status=404)
-        reports = len(data)
-        print(reports)
-        data1 = {'reports' : reports}
-        print(survivor.name)
-        print(data1)
-        serializer = SurvivorSerializer(survivor, data=data, partial=True)
-        if (survivor.reports >= 3):
-            data1 = {infected : False}
-            serializer = SurvivorSerializer(survivor, data=data, partial=True)
+        survivor.reports += len(data)
+        serializer = SurvivorSerializer(survivor, data=survivor.__dict__)
+        if survivor.reports >= 3:
+            survivor.infected = True
+            serializer = SurvivorSerializer(survivor, data=survivor.__dict__)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
