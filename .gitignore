@@ -3,7 +3,6 @@
 *.pyc
 *~
 .*
-zssn_venv
 viewsets.py
 migrations
 
