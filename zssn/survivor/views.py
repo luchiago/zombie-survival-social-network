@@ -91,10 +91,10 @@ def survivor_update_location(request, pk):
         serializer = SurvivorSerializer(survivor, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return HttpResponse(status=404)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-@csrf_exempt
+@api_view(['PATCH'])
 def survivor_flag_as_infected(request, pk):
     """
     Flag one survivor as infected, starting from his id
@@ -109,19 +109,19 @@ def survivor_flag_as_infected(request, pk):
     try:
         survivor = Survivor.objects.get(pk=pk)
     except Survivor.DoesNotExist:
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'PATCH':
         if survivor.infected is True or survivor.reports >= 3:
-            return HttpResponse(status=401)
-        data = JSONParser().parse(request)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        data = request.data
         for item in data.keys():
             try:
                 survivor_reporter = Survivor.objects.get(pk=data[item])
             except Survivor.DoesNotExist:
-                return HttpResponse(status=404)
+                return Response(status=status.HTTP_404_NOT_FOUND)
             if survivor_reporter.infected is True:
-                return HttpResponse(status=404)
+                return Response(status=status.HTTP_404_NOT_FOUND)
         survivor.reports += len(data)
         serializer = SurvivorSerializer(survivor, data=survivor.__dict__)
         if survivor.reports >= 3:
@@ -129,5 +129,5 @@ def survivor_flag_as_infected(request, pk):
             serializer = SurvivorSerializer(survivor, data=survivor.__dict__)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return HttpResponse(status=404)
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_404_NOT_FOUND)
