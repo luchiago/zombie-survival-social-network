@@ -9,7 +9,10 @@ from survivor.serializers import SurvivorSerializer
 def api_root(request, format=None):
     return Response({
         'survivor': reverse('survivor-list', request=request, format=format),
-        'reports': reverse('reports-list', request=request, format=format)
+        'survivor detail' : reverse('survivor-detail', request=request, format=format),
+        'reports': reverse('reports-list', request=request, format=format),
+        'update location' : reverse('update-location', request=request, format=format),
+        'flag as infected' : reverse('infected',request=request, format=format)
     })
 
 @api_view(['GET', 'POST'])
