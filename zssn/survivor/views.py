@@ -128,18 +128,36 @@ def survivor_flag_as_infected(request, pk):
     except Survivor.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+    def repeated_id_verify(list_id, id_to_verify):
+        if len(list_id) == 0:
+            list_id.append(id_to_verify)
+            return list_id
+        else:
+            for id in list_id:
+                if id == id_to_verify:
+                    return list_id
+            list_id.append(id_to_verify)
+            return list_id
+
     if request.method == 'PATCH':
+
         if survivor.infected is True or survivor.reports >= 3:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
         data = request.data
+        list_id = []
+
         for item in data.keys():
             try:
                 survivor_reporter = Survivor.objects.get(pk=data[item])
             except Survivor.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
             if survivor_reporter.infected is True:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        survivor.reports += len(data)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            list_id = repeated_id_verify(list_id, data[item])
+
+        survivor.reports += len(list_id)
         serializer = SurvivorSerializer(survivor, data=survivor.__dict__)
         if survivor.reports >= 3:
             survivor.infected = True
