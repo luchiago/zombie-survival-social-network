@@ -53,9 +53,9 @@ def survivor_reports(request):
 
     if request.method == 'GET':
         data = {}
-        total = infected = non_infected = water = food = medication = ammunition = pointslost = 0
+        total_survivors = infected = non_infected = water = food = medication = ammunition = pointslost = 0
         for i in Survivor.objects.all():
-            total += 1
+            total_survivors += 1
             if i.infected is False:
                 non_infected += 1
             if i.infected is True:
@@ -68,18 +68,21 @@ def survivor_reports(request):
             food += i.food
             medication += i.medication
             ammunition += i.ammunition
-        data['Percentage of infected survivors'] = str(round((infected/total), 2) * 100) + '%'
-        data['Percentage of non-infected survivors'] = str(round((non_infected/total), 2) * 100) + '%'
-        data['Average amount of water by survivor'] = round(water/total,2)
-        data['Average amount of food by survivor'] = round(food/total,2)
-        data['Average amount of medication by survivor'] = round(medication/total,2)
-        data['Average amount of ammunition by survivor'] = round(ammunition/total,2)
+        if total_survivors == 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        data['Percentage of infected survivors'] = str(round((infected/total_survivors), 2) * 100) + '%'
+        data['Percentage of non-infected survivors'] = str(round((non_infected/total_survivors), 2) * 100) + '%'
+        data['Average amount of water by survivor'] = round(water/total_survivors,2)
+        data['Average amount of food by survivor'] = round(food/total_survivors,2)
+        data['Average amount of medication by survivor'] = round(medication/total_survivors,2)
+        data['Average amount of ammunition by survivor'] = round(ammunition/total_survivors,2)
         data['Points lost because of infected survivor'] = pointslost
         return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
 def survivor_update_location(request, pk):
+
     """
     Update the location of survivor
     Model of json:
@@ -88,6 +91,7 @@ def survivor_update_location(request, pk):
         "last_location_latitude" : "80º21'25''N"
     }
     """
+
     try:
         survivor = Survivor.objects.get(pk=pk)
     except Survivor.DoesNotExist:
@@ -108,6 +112,7 @@ def survivor_update_location(request, pk):
 
 @api_view(['PATCH'])
 def survivor_flag_as_infected(request, pk):
+
     """
     Flag one survivor as infected, starting from his id
     If gets a 3 flags, the boolean infected turns True
@@ -218,7 +223,7 @@ def survivor_trade(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if survivor1.infected is True or survivor2 is True:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         survivor1_items = data["items1_trade"]
         survivor1_points = get_points(survivor1_items)
@@ -226,7 +231,7 @@ def survivor_trade(request):
         survivor2_points = get_points(survivor2_items)
 
         if not verify_items(survivor1, survivor1_items) or not verify_items(survivor2, survivor2_items):
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if survivor1_points == survivor2_points:
             survivor1 = trade_accepted(survivor1, survivor1_items, survivor2_items)
@@ -239,4 +244,4 @@ def survivor_trade(request):
                 response = list((serializer1.data, serializer2.data))
                 return Response(response)
         else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
