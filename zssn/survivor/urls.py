@@ -8,5 +8,6 @@ urlpatterns = format_suffix_patterns([
     path('survivor/<int:pk>/', views.survivor_detail, name='survivor-detail'),
     path('reports/', views.survivor_reports, name='reports-list'),
     path('updatelocation/<int:pk>/', views.survivor_update_location, name='update-location'),
-    path('infected/<int:pk>/', views.survivor_flag_as_infected, name='infected')
+    path('infected/<int:pk>/', views.survivor_flag_as_infected, name='infected'),
+    path('trade/', views.survivor_trade, name='trade')
 ])

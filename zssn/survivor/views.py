@@ -12,7 +12,8 @@ def api_root(request, format=None):
         'survivor detail' : reverse('survivor-detail', request=request, format=format),
         'reports': reverse('reports-list', request=request, format=format),
         'update location' : reverse('update-location', request=request, format=format),
-        'flag as infected' : reverse('infected',request=request, format=format)
+        'flag as infected' : reverse('infected',request=request, format=format),
+        'trades' : reverse('trade', request=request, format=format)
     })
 
 @api_view(['GET', 'POST'])
@@ -142,3 +143,100 @@ def survivor_flag_as_infected(request, pk):
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PATCH'])
+def survivor_trade(request):
+    """
+    The exchange of items between survivors happening in the following model:
+    {
+        "survivor1_id" : id,
+        "items1_trade": {"type" : amount},
+        "survivor2_id": id,
+        "items2_trade": {"type" : amount},
+    }
+    where "x" is the amount of the item (e.g "water" : 5)
+    """
+    def get_points(survivor_items):
+        points = 0
+        for item in survivor_items.keys():
+            if item.lower() == "water":
+                points += survivor_items[item] * 4
+            if item.lower() == "food":
+                points += survivor_items[item] * 3
+            if item.lower() == "medication":
+                points += survivor_items[item] * 2
+            if item.lower() == "ammunition":
+                points += survivor_items[item] * 1
+        return points
+
+    def verify_items(survivor, survivor_items):
+        flag = True
+        for item in survivor_items.keys():
+            if item.lower() == "water":
+                if survivor_items[item] > survivor.water:
+                    flag = False
+            if item.lower() == "food":
+                if survivor_items[item] > survivor.food:
+                    flag = False
+            if item.lower() == "medication":
+                if survivor_items[item] > survivor.medication:
+                    flag = False
+            if item.lower() == "ammunition":
+                if survivor_items[item] > survivor.ammunition:
+                    flag = False
+        return flag
+
+    def trade_accepted(survivor, survivor_gives, survivor_receive):
+        for item in survivor_gives.keys():
+            if item.lower() == "water":
+                survivor.water -= survivor_gives[item]
+            if item.lower() == "food":
+                survivor.food -= survivor_gives[item]
+            if item.lower() == "medication":
+                survivor.medication -= survivor_gives[item]
+            if item.lower() == "ammunition":
+                survivor.ammunition -= survivor_gives[item]
+        for item in survivor_receive.keys():
+            if item.lower() == "water":
+                survivor.water += survivor_receive[item]
+            if item.lower() == "food":
+                survivor.food += survivor_receive[item]
+            if item.lower() == "medication":
+                survivor.medication += survivor_receive[item]
+            if item.lower() == "ammunition":
+                survivor.ammunition += survivor_receive[item]
+        return survivor
+
+    if request.method == 'PATCH':
+
+        data = request.data
+
+        try:
+            survivor1 = Survivor.objects.get(pk=data["survivor1_id"])
+            survivor2 = Survivor.objects.get(pk=data["survivor2_id"])
+        except Survivor.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if survivor1.infected is True or survivor2 is True:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        survivor1_items = data["items1_trade"]
+        survivor1_points = get_points(survivor1_items)
+        survivor2_items = data["items2_trade"]
+        survivor2_points = get_points(survivor2_items)
+
+        if not verify_items(survivor1, survivor1_items) or not verify_items(survivor2, survivor2_items):
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        if survivor1_points == survivor2_points:
+            survivor1 = trade_accepted(survivor1, survivor1_items, survivor2_items)
+            survivor2 = trade_accepted(survivor2, survivor2_items, survivor1_items)
+            serializer1 = SurvivorSerializer(survivor1, data=survivor1.__dict__)
+            serializer2 = SurvivorSerializer(survivor2, data=survivor2.__dict__)
+            if serializer1.is_valid() and serializer2.is_valid():
+                serializer1.save()
+                serializer2.save()
+                response = list((serializer1.data, serializer2.data))
+                return Response(response)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
