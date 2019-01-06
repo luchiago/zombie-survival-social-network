@@ -78,6 +78,11 @@ def survivor_reports(request):
 def survivor_update_location(request, pk):
     """
     Update the location of survivor
+    Model of json:
+    {
+        "last_location_longitude" : "172º23'23''E'"
+        "last_location_latitude" : "80º21'25''N"
+    }
     """
     try:
         survivor = Survivor.objects.get(pk=pk)
@@ -104,7 +109,7 @@ def survivor_flag_as_infected(request, pk):
     If gets a 3 flags, the boolean infected turns True
     Model of json:
     {
-        reportx : <int:id>
+        "reportx" : <int:id>
     }
     where "x" is the number of report and <int:id> is the id of the other survivor
     """
