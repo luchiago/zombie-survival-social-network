@@ -1,8 +1,16 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from survivor.models import Survivor
 from survivor.serializers import SurvivorSerializer
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'survivor': reverse('survivor-list', request=request, format=format),
+        'reports': reverse('reports-list', request=request, format=format)
+    })
 
 @api_view(['GET', 'POST'])
 def survivor_list(request):
