@@ -68,15 +68,14 @@ def survivor_reports(request):
             food += i.food
             medication += i.medication
             ammunition += i.ammunition
-        if total_survivors == 0:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        data['Percentage of infected survivors'] = str(round((infected/total_survivors), 2) * 100) + '%'
-        data['Percentage of non-infected survivors'] = str(round((non_infected/total_survivors), 2) * 100) + '%'
-        data['Average amount of water by survivor'] = round(water/total_survivors,2)
-        data['Average amount of food by survivor'] = round(food/total_survivors,2)
-        data['Average amount of medication by survivor'] = round(medication/total_survivors,2)
-        data['Average amount of ammunition by survivor'] = round(ammunition/total_survivors,2)
-        data['Points lost because of infected survivor'] = pointslost
+        if total_survivors != 0:
+            data['Percentage of infected survivors'] = str(round((infected/total_survivors), 2) * 100) + '%'
+            data['Percentage of non-infected survivors'] = str(round((non_infected/total_survivors), 2) * 100) + '%'
+            data['Average amount of water by survivor'] = round(water/total_survivors,2)
+            data['Average amount of food by survivor'] = round(food/total_survivors,2)
+            data['Average amount of medication by survivor'] = round(medication/total_survivors,2)
+            data['Average amount of ammunition by survivor'] = round(ammunition/total_survivors,2)
+            data['Points lost because of infected survivor'] = pointslost
         return Response(data, status=status.HTTP_200_OK)
 
 
