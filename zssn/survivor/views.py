@@ -18,7 +18,6 @@ def survivor_list(request):
     List all survivors, or create a new survivor
     """
     if request.method == 'GET':
-        #List all the survivors
         survivor = Survivor.objects.all()
         serializer = SurvivorSerializer(survivor, many=True)
         return Response(serializer.data)
@@ -31,7 +30,7 @@ def survivor_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'DELETE'])
+@api_view(['GET'])
 def survivor_detail(request, pk):
     """
     Retrieve or delete a survivor.
@@ -44,10 +43,6 @@ def survivor_detail(request, pk):
     if request.method == 'GET':
         serializer = SurvivorSerializer(survivor)
         return Response(serializer.data)
-
-    elif request.method == 'DELETE':
-        survivor.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET'])
 def survivor_reports(request):
@@ -79,7 +74,7 @@ def survivor_reports(request):
         return Response(data, status=status.HTTP_200_OK)
 
 
-@api_view(['PATCH', 'PUT'])
+@api_view(['PATCH'])
 def survivor_update_location(request, pk):
     """
     Update the location of survivor
@@ -89,7 +84,7 @@ def survivor_update_location(request, pk):
     except Survivor.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'PATCH' or request.method == 'PUT':
+    if request.method == 'PATCH':
         data = request.data
         for item in data.keys():
             if len(data) > 2:
