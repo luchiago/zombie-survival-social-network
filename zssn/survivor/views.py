@@ -20,6 +20,18 @@ def api_root(request, format=None):
 def survivor_list(request):
     """
     List all survivors, or create a new survivor
+    Model of json:
+    {
+        "name" : <str>
+        "age" : <int>
+        "gender" : <str>
+        "last_location_longitude" : <str>
+        "last_location_latitude" : <str>
+        "water" : <int>
+        "food" : <int>
+        "medication" : <int>
+        "ammunition" : <int>
+    }
     """
     if request.method == 'GET':
         survivor = Survivor.objects.all()
@@ -37,7 +49,7 @@ def survivor_list(request):
 @api_view(['GET'])
 def survivor_detail(request, pk):
     """
-    Retrieve or delete a survivor.
+    Retrieve a survivor
     """
     try:
         survivor = Survivor.objects.get(pk=pk)
@@ -50,6 +62,9 @@ def survivor_detail(request, pk):
 
 @api_view(['GET'])
 def survivor_reports(request):
+    """
+    Retrieve the reports about the survivors
+    """
 
     if request.method == 'GET':
         data = {}
