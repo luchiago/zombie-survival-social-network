@@ -76,6 +76,14 @@ def survivor_reports(request):
             data['Average amount of medication by survivor'] = round(medication/total_survivors,2)
             data['Average amount of ammunition by survivor'] = round(ammunition/total_survivors,2)
             data['Points lost because of infected survivor'] = pointslost
+        else:
+            data['Percentage of infected survivors'] = '0%'
+            data['Percentage of non-infected survivors'] = '0%'
+            data['Average amount of water by survivor'] = 0
+            data['Average amount of food by survivor'] = 0
+            data['Average amount of medication by survivor'] = 0
+            data['Average amount of ammunition by survivor'] = 0
+            data['Points lost because of infected survivor'] = 0
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -174,7 +182,7 @@ def survivor_trade(request):
         "survivor1_id" : id,
         "items1_trade": {"type" : amount},
         "survivor2_id": id,
-        "items2_trade": {"type" : amount},
+        "items2_trade": {"type" : amount}
     }
     where "x" is the amount of the item (e.g "water" : 5)
     """
