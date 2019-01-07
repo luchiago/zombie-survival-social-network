@@ -15,12 +15,6 @@ class SurvivorTests(APITestCase):
         data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
                 "last_location_latitude": "80º21'25''N", "water": 4,
                 "food": 5, "medication": 0, "ammunition": 1}
-<<<<<<< HEAD
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(model.Survivor.objects.count(), 1)
-        self.assertEqual(model.Survivor.objects.get().name, 'Ana')
-=======
         self.client.post(url, data, format='json')
         survivor = Survivor.objects.get(id=1)
         self.assertEqual(survivor.name, "Ana")
@@ -36,22 +30,11 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor.reports, 0)
 
     def test_create_multiple_survivors(self):
->>>>>>> dev
 
         url = "http://127.0.0.1:8000/survivor/"
         data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
                 "last_location_latitude": "80º21'25''N", "water": 4,
                 "food": 5, "medication": 0, "ammunition": 1}
-<<<<<<< HEAD
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        data = {"name": "Lucas", "age": 19, "gender": "M", "last_location_longitude": "60º0'0''E'",
-                "last_location_latitude": "80º21'25''S", "water": 2,
-                "food": 1, "medication": 1, "ammunition": 1}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(model.Survivor.objects.count(), 2)
-=======
         self.client.post(url, data, format='json')
         data = {"name": "Lucas", "age": 20, "gender": "M", "last_location_longitude": "60º0'0''E'",
                 "last_location_latitude": "80º21'25''S", "water": 2,
@@ -68,7 +51,6 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor.water, 2)
 
     def test_get_survivor_detail(self):
->>>>>>> dev
 
         url = "http://127.0.0.1:8000/survivor/"
         data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
@@ -129,11 +111,11 @@ class SurvivorTests(APITestCase):
                 "food": 5, "medication": 0, "ammunition": 1}
         self.client.post(url, data, format='json')
         data = {"name":'Paula', "age":21, "gender":'F',"last_location_longitude":"152º23'23''E'",
-                "last_location_latitude":"70º21'25''N", "water": 2, 
+                "last_location_latitude":"70º21'25''N", "water": 2,
                 "food":6, "medication":3, "ammunition":2}
         self.client.post(url, data, format='json')
         data = {"name":'João', "age":30, "gender":'M',"last_location_longitude":"272º23'23''E'",
-                "last_location_latitude":"20º21'25''N", "water": 1, 
+                "last_location_latitude":"20º21'25''N", "water": 1,
                 "food":9, "medication":8, "ammunition":5}
         self.client.post(url, data, format='json')
         data = {"name":'Lucas', "age":15, "gender":'M',"last_location_longitude":"155º23'23''E'",
@@ -158,19 +140,19 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor.infected, False)
 
     def test_survivor_trade(self):
-        
+
         url = "http://127.0.0.1:8000/survivor/"
-        
+
         data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
                 "last_location_latitude": "80º21'25''N", "water": 4,
                 "food": 5, "medication": 0, "ammunition": 1}
         self.client.post(url, data, format='json')
         data = {"name":'Paula', "age":21, "gender":'F',"last_location_longitude":"152º23'23''E'",
-                "last_location_latitude":"70º21'25''N", "water": 2, 
+                "last_location_latitude":"70º21'25''N", "water": 2,
                 "food":6, "medication":3, "ammunition":2}
         self.client.post(url, data, format='json')
         data = {"name":'João', "age":30, "gender":'M',"last_location_longitude":"272º23'23''E'",
-                "last_location_latitude":"20º21'25''N", "water": 1, 
+                "last_location_latitude":"20º21'25''N", "water": 1,
                 "food":9, "medication":8, "ammunition":6}
         self.client.post(url, data, format='json')
         data = {"name":'Lucas', "age":15, "gender":'M',"last_location_longitude":"155º23'23''E'",
@@ -182,7 +164,7 @@ class SurvivorTests(APITestCase):
         data = {"survivor1_id" : 2,"items1_trade": {"water": 1, "medication": 1},
                 "survivor2_id": 3,"items2_trade": {"ammunition" : 6}}
         response = self.client.patch(url, data, format='json')
-        
+
         survivor1 = Survivor.objects.get(id=2)
         survivor2 = Survivor.objects.get(id=3)
         self.assertEqual(survivor1.ammunition, 8)
@@ -191,4 +173,3 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor2.ammunition, 0)
         self.assertEqual(survivor2.water, 2)
         self.assertEqual(survivor2.medication, 9)
-       

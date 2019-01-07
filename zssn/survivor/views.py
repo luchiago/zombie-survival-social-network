@@ -1,11 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-<<<<<<< HEAD
-from survivor.models import Survivor
-from survivor.serializers import SurvivorSerializer
-
-=======
 from rest_framework.reverse import reverse
 from survivor.models import Survivor
 from survivor.serializers import SurvivorSerializer
@@ -21,7 +16,6 @@ def api_root(request, format=None):
         'trades' : reverse('trade', request=request, format=format)
     })
 
->>>>>>> dev
 @api_view(['GET', 'POST'])
 def survivor_list(request):
     """
@@ -40,11 +34,7 @@ def survivor_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-<<<<<<< HEAD
-@api_view(['GET', 'DELETE'])
-=======
 @api_view(['GET'])
->>>>>>> dev
 def survivor_detail(request, pk):
     """
     Retrieve or delete a survivor.
@@ -58,27 +48,14 @@ def survivor_detail(request, pk):
         serializer = SurvivorSerializer(survivor)
         return Response(serializer.data)
 
-<<<<<<< HEAD
-    elif request.method == 'DELETE':
-        survivor.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-=======
->>>>>>> dev
 @api_view(['GET'])
 def survivor_reports(request):
 
     if request.method == 'GET':
         data = {}
-<<<<<<< HEAD
-        total = infected = non_infected = water = food = medication = ammunition = pointslost = 0
-        for i in Survivor.objects.all():
-            total += 1
-=======
         total_survivors = infected = non_infected = water = food = medication = ammunition = pointslost = 0
         for i in Survivor.objects.all():
             total_survivors += 1
->>>>>>> dev
             if i.infected is False:
                 non_infected += 1
             if i.infected is True:
@@ -91,15 +68,6 @@ def survivor_reports(request):
             food += i.food
             medication += i.medication
             ammunition += i.ammunition
-<<<<<<< HEAD
-        data['Percentage of infected survivors'] = str(round((infected/total), 2) * 100) + '%'
-        data['Percentage of non-infected survivors'] = str(round((non_infected/total), 2) * 100) + '%'
-        data['Average amount of water by survivor'] = round(water/total,2)
-        data['Average amount of food by survivor'] = round(food/total,2)
-        data['Average amount of medication by survivor'] = round(medication/total,2)
-        data['Average amount of ammunition by survivor'] = round(ammunition/total,2)
-        data['Points lost because of infected survivor'] = pointslost
-=======
         if total_survivors != 0:
             data['Percentage of infected survivors'] = str(round((infected/total_survivors), 2) * 100) + '%'
             data['Percentage of non-infected survivors'] = str(round((non_infected/total_survivors), 2) * 100) + '%'
@@ -116,17 +84,11 @@ def survivor_reports(request):
             data['Average amount of medication by survivor'] = 0
             data['Average amount of ammunition by survivor'] = 0
             data['Points lost because of infected survivor'] = 0
->>>>>>> dev
         return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
 def survivor_update_location(request, pk):
-<<<<<<< HEAD
-    """
-    Update the location of survivor
-    """
-=======
 
     """
     Update the location of survivor
@@ -137,7 +99,6 @@ def survivor_update_location(request, pk):
     }
     """
 
->>>>>>> dev
     try:
         survivor = Survivor.objects.get(pk=pk)
     except Survivor.DoesNotExist:
@@ -153,10 +114,6 @@ def survivor_update_location(request, pk):
         serializer = SurvivorSerializer(survivor, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
-<<<<<<< HEAD
-            return Response(serializer.data)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-=======
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -216,7 +173,6 @@ def survivor_flag_as_infected(request, pk):
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_404_NOT_FOUND)
->>>>>>> dev
 
 @api_view(['PATCH'])
 def survivor_trade(request):
@@ -226,11 +182,7 @@ def survivor_trade(request):
         "survivor1_id" : id,
         "items1_trade": {"type" : amount},
         "survivor2_id": id,
-<<<<<<< HEAD
-        "items2_trade": {"type" : amount},
-=======
         "items2_trade": {"type" : amount}
->>>>>>> dev
     }
     where "x" is the amount of the item (e.g "water" : 5)
     """
@@ -296,11 +248,7 @@ def survivor_trade(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         if survivor1.infected is True or survivor2 is True:
-<<<<<<< HEAD
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-=======
             return Response(status=status.HTTP_400_BAD_REQUEST)
->>>>>>> dev
 
         survivor1_items = data["items1_trade"]
         survivor1_points = get_points(survivor1_items)
@@ -308,11 +256,7 @@ def survivor_trade(request):
         survivor2_points = get_points(survivor2_items)
 
         if not verify_items(survivor1, survivor1_items) or not verify_items(survivor2, survivor2_items):
-<<<<<<< HEAD
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
-=======
                 return Response(status=status.HTTP_400_BAD_REQUEST)
->>>>>>> dev
 
         if survivor1_points == survivor2_points:
             survivor1 = trade_accepted(survivor1, survivor1_items, survivor2_items)
@@ -325,8 +269,4 @@ def survivor_trade(request):
                 response = list((serializer1.data, serializer2.data))
                 return Response(response)
         else:
-<<<<<<< HEAD
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-=======
             return Response(status=status.HTTP_400_BAD_REQUEST)
->>>>>>> dev

@@ -1,15 +1,4 @@
 from django.urls import path
-<<<<<<< HEAD
-from survivor import views
-
-urlpatterns = [
-    path('survivor/', views.survivor_list),
-    path('survivor/<int:pk>/', views.survivor_detail),
-    path('reports/', views.survivor_reports),
-    path('updatelocation/<int:pk>/', views.survivor_update_location),
-    path('trade/', views.survivor_trade)
-]
-=======
 from rest_framework.urlpatterns import format_suffix_patterns
 from survivor import views
 
@@ -22,4 +11,3 @@ urlpatterns = format_suffix_patterns([
     path('infected/<int:pk>/', views.survivor_flag_as_infected, name='infected'),
     path('trade/', views.survivor_trade, name='trade')
 ])
->>>>>>> dev
