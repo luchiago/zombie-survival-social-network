@@ -22,14 +22,14 @@ def survivor_list(request):
     List all survivors, or create a new survivor
     Model of json:
     {
-        "name" : <str>
-        "age" : <int>
-        "gender" : <str>
-        "last_location_longitude" : <str>
-        "last_location_latitude" : <str>
-        "water" : <int>
-        "food" : <int>
-        "medication" : <int>
+        "name" : <str>,
+        "age" : <int>,
+        "gender" : <str>,
+        "last_location_longitude" : <str>,
+        "last_location_latitude" : <str>,
+        "water" : <int>,
+        "food" : <int>,
+        "medication" : <int>,
         "ammunition" : <int>
     }
     """
@@ -109,7 +109,7 @@ def survivor_update_location(request, pk):
     Update the location of survivor
     Model of json:
     {
-        "last_location_longitude" : "172º23'23''E'"
+        "last_location_longitude" : "172º23'23''E'",
         "last_location_latitude" : "80º21'25''N"
     }
     """
@@ -199,7 +199,7 @@ def survivor_trade(request):
         "survivor2_id": id,
         "items2_trade": {"type" : amount}
     }
-    where "x" is the amount of the item (e.g "water" : 5)
+    where "type" is the item e "amount" is the amount of the item (e.g "water" : 5)
     """
     def get_points(survivor_items):
         points = 0
