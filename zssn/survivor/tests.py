@@ -262,8 +262,6 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor2.ammunition, 0)
         self.assertEqual(survivor2.water, 2)
         self.assertEqual(survivor2.medication, 9)
-<<<<<<< HEAD
-=======
 
     def test_survivor_error(self):
 
@@ -309,4 +307,3 @@ class SurvivorTests(APITestCase):
                 "survivor2_id": 6,"items2_trade": {"ammunition" : 6}}
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
->>>>>>> dev
