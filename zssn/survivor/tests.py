@@ -263,7 +263,7 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor2.water, 2)
         self.assertEqual(survivor2.medication, 9)
 
-    def test_survivor_error(self):
+    def test_survivor_trade_error(self):
 
         url = "http://127.0.0.1:8000/survivor/"
         data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
