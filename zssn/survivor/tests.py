@@ -29,6 +29,15 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor.infected, False)
         self.assertEqual(survivor.reports, 0)
 
+    def test_create_survivor_error(self):
+
+        url = "http://127.0.0.1:8000/survivor/"
+        data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
+                "water": 4, "food": 5, "ammunition": 1}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Survivor.objects.count(), 0)
+
     def test_create_multiple_survivors(self):
 
         url = "http://127.0.0.1:8000/survivor/"
@@ -78,14 +87,65 @@ class SurvivorTests(APITestCase):
         response = self.client.post(url, data, format='json')
 
         url = "http://127.0.0.1:8000/reports/"
-        response = self.client.get(url, data, format='json')
-        self.assertIn('"Percentage of infected survivors":"0.0%"', response.content.decode())
-        self.assertIn('"Percentage of non-infected survivors":"100.0%"', response.content.decode())
-        self.assertIn('"Average amount of water by survivor":4.0', response.content.decode())
-        self.assertIn('"Average amount of food by survivor":5.0', response.content.decode())
-        self.assertIn('"Average amount of medication by survivor":0.0', response.content.decode())
-        self.assertIn('"Average amount of ammunition by survivor":1.0', response.content.decode())
-        self.assertIn('"Points lost because of infected survivor":0', response.content.decode())
+
+        response = self.client.get(url)
+        data = eval(response.content.decode())
+        self.assertEqual(data["Percentage of infected survivors"], "0.0%")
+        self.assertEqual(data["Percentage of non-infected survivors"], "100.0%")
+        self.assertEqual(data["Average amount of water by survivor"], 4.0)
+        self.assertEqual(data["Average amount of food by survivor"], 5.0)
+        self.assertEqual(data["Average amount of medication by survivor"], 0)
+        self.assertEqual(data["Average amount of ammunition by survivor"], 1.0)
+        self.assertEqual(data["Points lost because of infected survivor"], 0)
+
+
+    def test_survivor_reports_2(self):
+
+        url = "http://127.0.0.1:8000/survivor/"
+        data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
+                "last_location_latitude": "80º21'25''N", "water": 4,
+                "food": 5, "medication": 0, "ammunition": 1}
+        self.client.post(url, data, format='json')
+        data = {"name":'Paula', "age":21, "gender":'F',"last_location_longitude":"152º23'23''E'",
+                "last_location_latitude":"70º21'25''N", "water": 2,
+                "food":6, "medication":3, "ammunition":2}
+        self.client.post(url, data, format='json')
+        data = {"name":'João', "age":30, "gender":'M',"last_location_longitude":"272º23'23''E'",
+                "last_location_latitude":"20º21'25''N", "water": 1,
+                "food":9, "medication":8, "ammunition":5}
+        self.client.post(url, data, format='json')
+        data = {"name":'Lucas', "age":15, "gender":'M',"last_location_longitude":"155º23'23''E'",
+                "last_location_latitude":"90º21'25''N", "water": 5,
+                "food":2, "medication":5, "ammunition":7}
+        self.client.post(url, data, format='json')
+
+        url = "http://127.0.0.1:8000/infected/1/"
+        data = {'report1': '2', 'report2': '3', 'report3': '4'}
+        self.client.patch(url, data, format='json')
+
+        url = "http://127.0.0.1:8000/reports/"
+        response = self.client.get(url)
+        data = eval(response.content.decode())
+        self.assertEqual(data["Percentage of infected survivors"], "25.0%")
+        self.assertEqual(data["Percentage of non-infected survivors"], "75.0%")
+        self.assertEqual(data["Average amount of water by survivor"], 2.7)
+        self.assertEqual(data["Average amount of food by survivor"], 5.7)
+        self.assertEqual(data["Average amount of medication by survivor"], 5.3)
+        self.assertEqual(data["Average amount of ammunition by survivor"], 4.7)
+        self.assertEqual(data["Points lost because of infected survivor"], 32)
+
+    def test_survivor_reports_without_survivors_in_database(self):
+
+        url = "http://127.0.0.1:8000/reports/"
+        response = self.client.get(url)
+        data = eval(response.content.decode())
+        self.assertEqual(data["Percentage of infected survivors"], "0.0%")
+        self.assertEqual(data["Percentage of non-infected survivors"], "0.0%")
+        self.assertEqual(data["Average amount of water by survivor"], 0)
+        self.assertEqual(data["Average amount of food by survivor"], 0)
+        self.assertEqual(data["Average amount of medication by survivor"], 0)
+        self.assertEqual(data["Average amount of ammunition by survivor"], 0)
+        self.assertEqual(data["Points lost because of infected survivor"], 0)
 
     def test_survivor_update_location(self):
 
@@ -102,6 +162,35 @@ class SurvivorTests(APITestCase):
         survivor = Survivor.objects.get(id=1)
         self.assertEqual(survivor.last_location_longitude, "150º23'23''E'")
         self.assertEqual(survivor.last_location_latitude, "50º21'25''N")
+
+    def test_survivor_update_location_error(self):
+
+        url = "http://127.0.0.1:8000/survivor/"
+        data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
+                "last_location_latitude": "80º21'25''N", "water": 4,
+                "food": 5, "medication": 0, "ammunition": 1}
+        self.client.post(url, data, format='json')
+
+        url = "http://127.0.0.1:8000/updatelocation/1/"
+        data = {"last_location_longitude":"150º23'23''E'", "last_location_latitude":"50º21'25''N", "water" : 5}
+        response = self.client.patch(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        survivor = Survivor.objects.get(id=1)
+        self.assertEqual(survivor.last_location_longitude, "172º23'23''E'")
+        self.assertEqual(survivor.last_location_latitude, "80º21'25''N")
+
+        data = {"last_location_longitude":"150º23'23''E'"}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(survivor.last_location_longitude, "172º23'23''E'")
+        self.assertEqual(survivor.last_location_latitude, "80º21'25''N")
+
+        data = {"water": 5, "food": 2}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(survivor.water, 4)
+        self.assertEqual(survivor.food, 5)
 
     def test_survivor_flag_as_infected(self):
 
@@ -173,3 +262,51 @@ class SurvivorTests(APITestCase):
         self.assertEqual(survivor2.ammunition, 0)
         self.assertEqual(survivor2.water, 2)
         self.assertEqual(survivor2.medication, 9)
+<<<<<<< HEAD
+=======
+
+    def test_survivor_error(self):
+
+        url = "http://127.0.0.1:8000/survivor/"
+        data = {"name": "Ana", "age": 19, "gender": "F", "last_location_longitude": "172º23'23''E'",
+                "last_location_latitude": "80º21'25''N", "water": 4,
+                "food": 5, "medication": 0, "ammunition": 1}
+        self.client.post(url, data, format='json')
+        data = {"name":'Paula', "age":21, "gender":'F',"last_location_longitude":"152º23'23''E'",
+                "last_location_latitude":"70º21'25''N", "water": 2,
+                "food":6, "medication":3, "ammunition":2}
+        self.client.post(url, data, format='json')
+        data = {"name":'João', "age":30, "gender":'M',"last_location_longitude":"272º23'23''E'",
+                "last_location_latitude":"20º21'25''N", "water": 1,
+                "food":9, "medication":8, "ammunition":5}
+        self.client.post(url, data, format='json')
+        data = {"name":'Lucas', "age":15, "gender":'M',"last_location_longitude":"155º23'23''E'",
+                "last_location_latitude":"90º21'25''N", "water": 5,
+                "food":2, "medication":5, "ammunition":7}
+        self.client.post(url, data, format='json')
+
+        url = "http://127.0.0.1:8000/infected/1/"
+        data = {'report1': '2', 'report2': '3', 'report3': '4'}
+        self.client.patch(url, data, format='json')
+
+        survivor = Survivor.objects.get(id=1)
+        self.assertEqual(survivor.reports, 3)
+        self.assertEqual(survivor.infected, True)
+
+        url = "http://127.0.0.1:8000/trade/"
+        data = {"survivor1_id" : 1,"items1_trade": {"water": 1, "medication": 1},
+                "survivor2_id": 3,"items2_trade": {"ammunition" : 6}}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        survivor2 = Survivor.objects.get(id=3)
+        self.assertEqual(survivor2.ammunition, 5)
+        self.assertEqual(survivor2.water, 1)
+        self.assertEqual(survivor2.medication, 8)
+
+        url = "http://127.0.0.1:8000/trade/"
+        data = {"survivor1_id" : 2,"items1_trade": {"water": 1, "medication": 1},
+                "survivor2_id": 6,"items2_trade": {"ammunition" : 6}}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+>>>>>>> dev

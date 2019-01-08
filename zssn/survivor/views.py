@@ -20,6 +20,18 @@ def api_root(request, format=None):
 def survivor_list(request):
     """
     List all survivors, or create a new survivor
+    Model of json:
+    {
+        "name" : <str>,
+        "age" : <int>,
+        "gender" : <str>,
+        "last_location_longitude" : <str>,
+        "last_location_latitude" : <str>,
+        "water" : <int>,
+        "food" : <int>,
+        "medication" : <int>,
+        "ammunition" : <int>
+    }
     """
     if request.method == 'GET':
         survivor = Survivor.objects.all()
@@ -37,7 +49,7 @@ def survivor_list(request):
 @api_view(['GET'])
 def survivor_detail(request, pk):
     """
-    Retrieve or delete a survivor.
+    Retrieve a survivor
     """
     try:
         survivor = Survivor.objects.get(pk=pk)
@@ -50,6 +62,9 @@ def survivor_detail(request, pk):
 
 @api_view(['GET'])
 def survivor_reports(request):
+    """
+    Retrieve the reports about the survivors
+    """
 
     if request.method == 'GET':
         data = {}
@@ -58,27 +73,28 @@ def survivor_reports(request):
             total_survivors += 1
             if i.infected is False:
                 non_infected += 1
+                water += i.water
+                food += i.food
+                medication += i.medication
+                ammunition += i.ammunition
             if i.infected is True:
                 infected += 1
                 pointslost += (4 * i.water)
                 pointslost += (3 * i.food)
                 pointslost += (2 * i.medication)
                 pointslost += (1 * i.ammunition)
-            water += i.water
-            food += i.food
-            medication += i.medication
-            ammunition += i.ammunition
+
         if total_survivors != 0:
             data['Percentage of infected survivors'] = str(round((infected/total_survivors), 2) * 100) + '%'
             data['Percentage of non-infected survivors'] = str(round((non_infected/total_survivors), 2) * 100) + '%'
-            data['Average amount of water by survivor'] = round(water/total_survivors,2)
-            data['Average amount of food by survivor'] = round(food/total_survivors,2)
-            data['Average amount of medication by survivor'] = round(medication/total_survivors,2)
-            data['Average amount of ammunition by survivor'] = round(ammunition/total_survivors,2)
+            data['Average amount of water by survivor'] = round(water/non_infected,1)
+            data['Average amount of food by survivor'] = round(food/non_infected,1)
+            data['Average amount of medication by survivor'] = round(medication/non_infected,1)
+            data['Average amount of ammunition by survivor'] = round(ammunition/non_infected,1)
             data['Points lost because of infected survivor'] = pointslost
         else:
-            data['Percentage of infected survivors'] = '0%'
-            data['Percentage of non-infected survivors'] = '0%'
+            data['Percentage of infected survivors'] = '0.0%'
+            data['Percentage of non-infected survivors'] = '0.0%'
             data['Average amount of water by survivor'] = 0
             data['Average amount of food by survivor'] = 0
             data['Average amount of medication by survivor'] = 0
@@ -94,7 +110,7 @@ def survivor_update_location(request, pk):
     Update the location of survivor
     Model of json:
     {
-        "last_location_longitude" : "172º23'23''E'"
+        "last_location_longitude" : "172º23'23''E'",
         "last_location_latitude" : "80º21'25''N"
     }
     """
@@ -107,7 +123,7 @@ def survivor_update_location(request, pk):
     if request.method == 'PATCH':
         data = request.data
         for item in data.keys():
-            if len(data) > 2:
+            if len(data) != 2:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             elif item != "last_location_longitude" and item != "last_location_latitude":
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -184,7 +200,7 @@ def survivor_trade(request):
         "survivor2_id": id,
         "items2_trade": {"type" : amount}
     }
-    where "x" is the amount of the item (e.g "water" : 5)
+    where "type" is the item e "amount" is the amount of the item (e.g "water" : 5)
     """
     def get_points(survivor_items):
         points = 0
